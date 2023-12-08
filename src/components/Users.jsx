@@ -31,6 +31,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useStore } from '../store';
 
 export const Users = ({ onClose }) => {
   const [users, setUsers] = useState([]);
@@ -39,6 +40,8 @@ export const Users = ({ onClose }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [chatName, setChatName] = useState('');
   const [search, setSearch] = useState('');
+
+  const { setSelectedChat } = useStore((state) => state);
 
   const { user } = useAuth();
 
@@ -76,9 +79,23 @@ export const Users = ({ onClose }) => {
         updatedAt: timestamp,
         adminId: user.uid,
       });
+      setSelectedChat({
+        id: chatId,
+        isGroupChat: false,
+        uid: selectedUserId,
+        uids: [],
+        name: '',
+      });
       navigate(chatId);
       onClose();
     } else {
+      setSelectedChat({
+        id: res.id,
+        isGroupChat: false,
+        uid: selectedUserId,
+        uids: [],
+        name: '',
+      });
       navigate(res.id);
       onClose();
     }
@@ -97,7 +114,14 @@ export const Users = ({ onClose }) => {
       updatedAt: timestamp,
       name,
     });
-
+    setSelectedChat({
+      id: newChat.id,
+      isGroupChat: true,
+      uid: '',
+      uids: members,
+      name,
+      adminId: user.uid,
+    });
     navigate(newChat.id);
     onClose();
   };
